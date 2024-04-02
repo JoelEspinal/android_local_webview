@@ -59,7 +59,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun loadContent() {
-        var documentsFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+      val documentsFolder = Environment.DIRECTORY_DOCUMENTS
+
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
 
