@@ -2,16 +2,24 @@ package com.joelespinal.local_webview
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.webkit.WebViewAssetLoader
+import androidx.webkit.WebViewAssetLoader.InternalStoragePathHandler
+import androidx.webkit.WebViewClientCompat
+import java.io.File
+
 
 class MainActivity : AppCompatActivity() {
     val PERMISSION_REQUEST_CODE = 1
@@ -59,24 +67,44 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun loadContent() {
-      val documentsFolder = Environment.DIRECTORY_DOCUMENTS
+        val publicDir = File(this.getFilesDir(), "/");
 
-        webView.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+        val c = publicDir.path
 
-                view?.settings?.javaScriptEnabled = true
-                view?.settings?.allowFileAccess = true
-                view?.settings?.allowFileAccessFromFileURLs = true
-                view?.settings?.allowContentAccess = true
-                view?.loadUrl(url!!)
-                return true
+      val documentsFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+
+        val  assetLoader = WebViewAssetLoader.Builder()
+            .addPathHandler("/public/", InternalStoragePathHandler(this, publicDir))
+            .build();
+
+
+        webView.webViewClient = object : WebViewClientCompat() {
+
+            @RequiresApi(21)
+            override fun shouldInterceptRequest(
+                view: WebView?,
+                request: WebResourceRequest
+            ): WebResourceResponse? {
+                return assetLoader.shouldInterceptRequest(request.url)
+            }
+
+            @Suppress("deprecation")
+            override // for API < 21
+            fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse? {
+                return assetLoader.shouldInterceptRequest(Uri.parse(url))
             }
         }
 
+        var webViewSettings = webView.getSettings()
+        webViewSettings.javaScriptEnabled = true
+        webViewSettings.allowFileAccess = true
+        webViewSettings.allowFileAccessFromFileURLs = true
+        webViewSettings.allowContentAccess = true
 
-        // webView.loadUrl("https://www.google.com/")
 
-        webView.loadUrl("file:///$documentsFolder/index.html")
+//        var projectFile = "file://$documentsFolder/index.html"
+//        webView.loadUrl(Uri.parse(publicDir.path).toString())
+        webView.loadUrl("google.com")
     }
 
     private fun checkPermission(): Boolean {
