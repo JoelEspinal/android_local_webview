@@ -103,8 +103,9 @@ class MainActivity : AppCompatActivity() {
 
 
 //        var projectFile = "file://$documentsFolder/index.html"
-//        webView.loadUrl(Uri.parse(publicDir.path).toString())
-        webView.loadUrl("google.com")
+
+        webView.loadUrl(Uri.parse("file:///android_asset/index.html").toString())
+//        webView.loadUrl("google.com")
     }
 
     private fun checkPermission(): Boolean {
