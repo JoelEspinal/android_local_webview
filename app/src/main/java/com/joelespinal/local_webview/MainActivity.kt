@@ -21,8 +21,8 @@ import androidx.webkit.WebViewClientCompat
 import java.io.File
 
 
+val PERMISSION_REQUEST_CODE = 1
 class MainActivity : AppCompatActivity() {
-    val PERMISSION_REQUEST_CODE = 1
     private lateinit var webView: WebView
 
 
@@ -41,14 +41,16 @@ class MainActivity : AppCompatActivity() {
                 // Your Permission granted already .Do next code
                 loadContent()
             } else {
-                requestPermission() // Code for permission
+                // Code for permission
+                requestPermission()
             }
         }
         else
         {
-            requestPermission()
             // Code for Below 23 API Oriented Device
             // Do next code
+            requestPermission()
+
         }
 
     }
@@ -67,16 +69,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun loadContent() {
-        val publicDir = File(this.getFilesDir(), "/");
-
-        val c = publicDir.path
-
-      val documentsFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-
         val  assetLoader = WebViewAssetLoader.Builder()
-            .addPathHandler("/public/", InternalStoragePathHandler(this, publicDir))
             .build();
-
 
         webView.webViewClient = object : WebViewClientCompat() {
 
@@ -101,10 +95,15 @@ class MainActivity : AppCompatActivity() {
         webViewSettings.allowFileAccessFromFileURLs = true
         webViewSettings.allowContentAccess = true
 
-
-//        var projectFile = "file://$documentsFolder/index.html"
-
+        /*
+            Pass Uri (file:///android_asset/<html-entry-point>)
+            this Uri give access to "app/src/main/assets" where your html code is stored
+            create the assets folder if is not present. placed in "app/src/main/assets"
+         */
         webView.loadUrl(Uri.parse("file:///android_asset/index.html").toString())
+        /*
+            you can request to an external web site as follow
+         */
 //        webView.loadUrl("google.com")
     }
 
